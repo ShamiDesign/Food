@@ -17,10 +17,10 @@ import logo from "../assets/logo.png"
 import { useAuth } from '../context/Auth/AuthContext';
 
 
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+
 
 function Navbar() {
-  const {email, token}=useAuth()
+  const {email,isAuthenticated,login , logout}=useAuth()
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -40,10 +40,19 @@ function Navbar() {
   };
 
   const navigate=useNavigate ();
+
   const handelLogin=()=>{
+    login()
     navigate("/login");
   }
-console.log("from Nav", {email, token})
+
+const handelLogout=()=>{
+  logout()
+  setAnchorElUser(null);
+  navigate('/')
+}
+
+console.log("from Nav", {email})
   return (
     <AppBar position="static"   sx={{
     boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.05)",
@@ -149,11 +158,15 @@ console.log("from Nav", {email, token})
            
           </Box>
           <Box sx={{ flexGrow: 0 }}>
-                <Button variant="contained" onClick={handelLogin}
-                sx={{ background: "var(--main-color)", mx:2}} > Login</Button>
+                
+          {isAuthenticated?(<>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Food Sharp" src="" />
+                <Box sx={{ display:'flex', flexDirection:'column', alignItems:'center'}}>
+
+                <Avatar alt={email} src="" sx={{width:30, height:30}}/>
+                <Typography>{email}</Typography>
+                </Box>
               </IconButton>
             </Tooltip>
             <Menu
@@ -172,12 +185,19 @@ console.log("from Nav", {email, token})
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
+              <MenuItem onClick={handleCloseUserMenu} sx={{display:'flex', flexDirection:'column', alignItems:'center', gap:2}}>
+              <Typography sx={{ textAlign: 'center' }}>Profile</Typography>
+              </MenuItem>
+              <MenuItem onClick={handelLogout}>
+              <Typography sx={{ textAlign: 'center' }} >Logout</Typography>
+              </MenuItem>
+              {/* {settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
                 </MenuItem>
-              ))}
+              ))} */}
             </Menu>
+          </>):(<Button variant="contained" sx={{ background: "var(--main-color)", mx:2}} onClick={handelLogin}>Login</Button>)}
+          
           </Box>
         </Toolbar>
       </Container>
