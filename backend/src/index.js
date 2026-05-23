@@ -19,6 +19,7 @@ console.log("con't conect mongoose")
 
 app.use('/', router)
 app.use('/User', user)
+app.use("/uploads", express.static("src/uploads"));
 
 
 

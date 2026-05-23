@@ -1,25 +1,41 @@
 import express from "express";
 import { RecipeModel } from "../models/RecipesSchema.js";
+import multer from "multer"; // for upload image
 
 const router = express.Router();
 
+// for upload image
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "src/uploads/");
+  },
+
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage });
+
+// ===========================================================
 // Get All items
 router.get("/", async (req, res) => {
   try {
     const recipes = await RecipeModel.find();
     res.status(200).json(recipes);
   } catch (error) {
-   res.status(500).json({
-  message: "Internal server error",
-  error: error.message,
-});
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 });
-
+// ===========================================================
 // Add item
-router.post("/", async (req, res) => {
+router.post("/",upload.single("image"), async (req, res) => {
   try {
-    const { title, ingredients, instructions, image } = req.body;
+    const { title, ingredients, instructions } = req.body;
+     const image = `/uploads/${req.file.filename}`;
     if (!title || !ingredients || !instructions || !image) {
       return res.status(400).json("Requierd filds");
     }
@@ -37,7 +53,7 @@ router.post("/", async (req, res) => {
     });
   }
 });
-
+// ===========================================================
 // Update item
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
@@ -59,12 +75,12 @@ router.put("/:id", async (req, res) => {
     res.status(200).json(updateRecipe);
   } catch (error) {
     res.status(500).json({
-  message: "Internal server error",
-  error: error.message,
-});
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 });
-
+// ===========================================================
 // Deleted item
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
@@ -75,10 +91,10 @@ router.delete("/:id", async (req, res) => {
     }
     res.status(200).json("Deleted recipe");
   } catch (error) {
-  res.status(500).json({
-  message: "Internal server error",
-  error: error.message,
-});
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 });
 
